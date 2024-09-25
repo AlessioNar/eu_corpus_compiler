@@ -50,7 +50,7 @@ def html2txt_path_eu(file_path):
     :return: str
     """
 
-    with open(file_path, 'r') as file:
+    with open(file_path, 'r', encoding='utf-8') as file:
         text = ' '.join(file.readlines())
         output_text = html2txt_str_eu(text)
 
