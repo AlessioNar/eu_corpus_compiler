@@ -113,12 +113,12 @@ def get_text(input_path, output_dir, replace_existing=False):
             text = ''
 
             # Get text from XML file
-            if extension == 'xml' and '.doc.' not in file_path and '.toc.' not in file_path:
-                pbar.set_description_str(f'Processing file: <XML> {cellar_id}/{file}', refresh=True)
-                text = xml2txt_bs4_eu(file_path)
+            #if extension == 'xml' and '.doc.' not in file_path and '.toc.' not in file_path:
+            #    pbar.set_description_str(f'Processing file: <XML> {cellar_id}/{file}', refresh=True)
+            #    text = xml2txt_bs4_eu(file_path)
 
             # Get text from HTML file
-            elif extension == 'html':
+            if extension == 'html':
                 pbar.set_description_str(f'Processing file: <HTML> {cellar_id}/{file}', refresh=True)
                 text = html2txt_path_eu(file_path)
 
@@ -131,9 +131,9 @@ def get_text(input_path, output_dir, replace_existing=False):
 
                 # Create output directory if it doesn't exist
                 os.makedirs(os.path.dirname(output_dir), exist_ok=True)
-
+                os.makedirs(os.path.dirname(os.path.join(output_dir, file_name)), exist_ok=True)
                 # Open output file for writing
-                with open(out_file_path, 'w+') as outfile:
+                with open(out_file_path, 'w+', encoding="utf-8") as outfile:
                     # Write the text to the output file
                     outfile.write(text)
 
