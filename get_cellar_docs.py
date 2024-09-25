@@ -15,6 +15,8 @@ from get_text_from_cellar_files import get_text
 from utils.file_utils import text_to_str, get_subdir_list_from_path, print_list_to_file, to_json_output_file
 from threading import Thread
 
+QUERY = 'queries/sparql_queries/newproposal.rq'
+dir_to_check = "data/cellar_files_20240903-134646/"
 
 def check_ids_to_download(id_list, dir_to_check):
     """
@@ -121,7 +123,7 @@ def process_range(sub_list, folder_path):
                 # with the same name
                 out_file = sub_folder_path + '/' + id + '.html'
                 os.makedirs(os.path.dirname(out_file), exist_ok=True)
-                with open(out_file, 'w') as f:
+                with open(out_file, 'w+', encoding="utf-8") as f:
                     f.write(response.text)
 
         # If the response's header does not contain the string 'Content-Type'
@@ -159,9 +161,13 @@ def process_range(sub_list, folder_path):
 # ===================
 timestamp = str(datetime.now().strftime("%Y%m%d-%H%M%S"))
 
+
+# Specify folder path to store downloaded files
+dwnld_folder_path = "data/cellar_files_" + timestamp + "/"
+
 # Get SPARQL query from given file
-sparql_query = text_to_str('queries/sparql_queries/financial_domain_sparql_2019-01-07.rq')
-# print('SPARQL_PATH:', sparql_query)
+sparql_query = text_to_str(QUERY)
+print('SPARQL_PATH:', sparql_query)
 
 # Get CELLAR information from EU SPARQL endpoint (in JSON format)
 sparql_query_results = get_cellar_info_from_endpoint(sparql_query)
@@ -192,15 +198,12 @@ cellar_ids_to_file(id_list, timestamp)
 
 
 # Create a list of not-yet-downloaded file ids by comparing the results in id_list with files present in the given directory
-# dir_to_check = None
-dir_to_check = "data/cellar_files_20201214-165041/"
-# dir_to_check = "dir_with_previously_downloaded_files/"
+
+
 if dir_to_check and os.path.exists(dir_to_check):
     id_list = check_ids_to_download(id_list, dir_to_check)
-    # print('NEW_FILES_TO_DOWNLOAD:', len(id_list))
+    print('NEW_FILES_TO_DOWNLOAD:', len(id_list))
 
-# Specify folder path to store downloaded files
-dwnld_folder_path = "data/cellar_files_" + timestamp + "/"
 
 # Run multiple threads in parallel to download the files
 # using the process_range(sub_list, dwnld_folder_path) function
@@ -223,6 +226,6 @@ for i in range(nthreads):  # Four times...
 # Set replace_existing to True to replace existing text files.
 # To process only new files, set replace_existing to False (default).
 # Usage: get_text(input_path, output_dir, replace_existing=False)
-txt_folder_path = "data/text_files_" + dwnld_folder_path.split('_')[-1]
+txt_folder_path = "data/text_files/text_" + dwnld_folder_path.split('_')[-1]
 # print('TXT_DIR_PATH:', txt_folder_path)
 get_text(dwnld_folder_path, txt_folder_path, replace_existing=False)
