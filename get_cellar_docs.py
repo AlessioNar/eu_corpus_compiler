@@ -15,7 +15,7 @@ from get_text_from_cellar_files import get_text
 from utils.file_utils import text_to_str, get_subdir_list_from_path, print_list_to_file, to_json_output_file
 from threading import Thread
 
-QUERY = 'queries/sparql_queries/newproposal.rq'
+QUERY = 'queries/sparql_queries/financial_domain_sparql_2019-01-07.rq'
 dir_to_check = "data/cellar_files_20240903-134646/"
 
 def check_ids_to_download(id_list, dir_to_check):
