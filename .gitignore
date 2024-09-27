@@ -1,4 +1,6 @@
 __pycache__/*
-sparql_query_results/*
+queries/sparql_query_results/*
 data/*
 cellar_ids/*
+utils/__pycache__/*
+id_logs/*

@@ -1,19 +1,19 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 # coding=<utf-8>
-
 
 """ Program to send GET requests to the EU CELLAR endpoint and download zip files for the given documents under a CELLAR URI."""
 
+import os
+import io
+from datetime import datetime
+from threading import Thread
+
 import requests
 import zipfile
-import io
-import os
-from datetime import datetime
-from get_cellar_ids import get_cellar_info_from_endpoint, get_cellar_ids_from_json_results, cellar_ids_to_file, \
-    get_cellar_ids_from_csv_file
+
+from get_cellar_ids import get_cellar_info_from_endpoint, get_cellar_ids_from_json_results, cellar_ids_to_file, get_cellar_ids_from_csv_file
 from get_text_from_cellar_files import get_text
 from utils.file_utils import text_to_str, get_subdir_list_from_path, print_list_to_file, to_json_output_file
-from threading import Thread
 
 QUERY = 'queries/sparql_queries/financial_domain_sparql_2019-01-07.rq'
 dir_to_check = "data/cellar_files_20240903-134646/"
