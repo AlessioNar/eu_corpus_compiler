@@ -87,10 +87,10 @@ def query_results_to_json(query_results):
     :return: None
     """
     # Usage: to_json_output_file(file_name, data)
-    to_json_output_file('sparql_query_results/query_results_'+timestamp+'.json', query_results)
+    to_json_output_file('sparql_query_results/query_results.json', query_results)
 
 
-def cellar_ids_to_file(id_list, timestamp):
+def cellar_ids_to_file(id_list):
     """
     Output the list of CELLAR ids to txt file.
     :param id_list: list
@@ -99,7 +99,7 @@ def cellar_ids_to_file(id_list, timestamp):
     dir_name = "cellar_ids/"
     os.makedirs(os.path.dirname(dir_name), exist_ok=True)
     # Usage: print_list_to_file(file_name, data)
-    print_list_to_file(dir_name + 'cellar_ids_' + timestamp + '.txt', id_list)
+    print_list_to_file(dir_name + 'cellar_ids_.txt', id_list)
 
 
 if __name__ == '__main__':

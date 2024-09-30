@@ -1,12 +1,32 @@
-# EU Regulation Corpus Compiler
+# EU Regulation Corpus Compiler - customised
 
 [![DOI](https://zenodo.org/badge/202197619.svg)](https://zenodo.org/badge/latestdoi/202197619)
 
-A pipeline of Python programs to retrieve EU regulatory documents from the Eur-Lex portal (https://eur-lex.europa.eu). 
+A pipeline of Python programs to retrieve EU regulatory documents from the Eur-Lex portal (https://eur-lex.europa.eu). Fork from the original project.
+
+## Software analsysis
 
 The program starts by sending a given SPARQL query (defining, for example, the types, the language, and the domain of the documents to retrieve) to the EU Sparql endpoint to retrieve CELLAR records. The CELLAR ids are then collected and sent to the EU CELLAR endpoint to download the corresponding `.xml` and `.html` files. The program can also check which files have already been downloaded so as to download only new files. Finally, the text of the `.xml` and `.html` files is extracted, cleaned up, and output in new text files.
 
-For further details, see the comments in the code of the Python files.
+EU Regulation Corpus Compiler flow
+
+* Sends a given SPARQL query to the Virtuoso Sparql endpoint of the OP.
+* Retrieves CELLAR records based on the query.
+* Collects CELLAR ids from the retrieved records.
+* Sends a query to the CELLAR ids to the OP REST APIs endpoint.
+* Downloads corresponding .xml and .html files.
+* Checks if files have already been downloaded.
+* Downloads only new files.
+* Extracts text from .xml and .html files.
+* Cleans up the extracted text.
+* Outputs the cleaned text in new text files.
+
+Key Functionality
+
+* Retrieving CELLAR Knowledge Graph records based on a SPARQL query
+* Downloading files from the API endpoint
+* Checking for existing files and downloading only new ones
+* Extracting, cleaning, and outputting text from .xml and .html files
 
 ## Usage
 1. In `get_cellar_docs.py` specify the following paths:
