@@ -4,3 +4,4 @@ data/*
 cellar_ids/*
 utils/__pycache__/*
 id_logs/*
+prompt.md
