@@ -6,14 +6,15 @@
 import os
 import io
 from datetime import datetime
+import logging
 
 import requests
 import zipfile
 
-from utils.file_utils import get_subdir_list_from_path, print_list_to_file 
+from utils.file_utils import get_subdir_list_from_path, print_list_to_file
 
-# Set current time and date
-timestamp = str(datetime.now().strftime("%Y%m%d-%H%M%S"))
+# Set up logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def check_ids_to_download(id_list, dir_to_check):
     """
@@ -25,49 +26,52 @@ def check_ids_to_download(id_list, dir_to_check):
     :param id_list: list
     :return: list
     """
-
-    # Get CELLAR ids in the subdirectories containing the files already downloaded
-    downloaded_files_list = get_subdir_list_from_path(dir_to_check)
-    # print('ALREADY_DOWNLOADED:', len(downloaded_files_list))
-    in_dir_name = 'id_logs/in_dir_lists/'
-    os.makedirs(os.path.dirname(in_dir_name), exist_ok=True)
-    print_list_to_file(in_dir_name + 'in_dir_' + timestamp + '.txt', downloaded_files_list)
-
-    # Get list of files that have not yet been downloaded
-    missing_ids_list = list(set(id_list) - set(downloaded_files_list))
-    #print('SET_DIFF:', len(missing_ids_list))
-    new_ids_dir_name = 'id_logs/cellar_ids/'
-    os.makedirs(os.path.dirname(new_ids_dir_name), exist_ok=True)
-    print_list_to_file(new_ids_dir_name + 'cellar_ids_' + timestamp + '.txt', missing_ids_list)
-
-    return missing_ids_list
-
+    try:
+        downloaded_files_list = get_subdir_list_from_path(dir_to_check)
+        missing_ids_list = list(set(id_list) - set(downloaded_files_list))
+        logging.info(f"Missing ids: {len(missing_ids_list)}")
+        
+        # Log downloaded files and missing ids
+        in_dir_name = 'id_logs/in_dir_lists/'
+        os.makedirs(os.path.dirname(in_dir_name), exist_ok=True)
+        print_list_to_file(in_dir_name + 'in_dir_' + datetime.now().strftime("%Y%m%d-%H%M%S") + '.txt', downloaded_files_list)
+        
+        new_ids_dir_name = 'id_logs/cellar_ids/'
+        os.makedirs(os.path.dirname(new_ids_dir_name), exist_ok=True)
+        print_list_to_file(new_ids_dir_name + 'cellar_ids_' + datetime.now().strftime("%Y%m%d-%H%M%S") + '.txt', missing_ids_list)
+        
+        return missing_ids_list
+    except Exception as e:
+        logging.error(f"Error checking ids to download: {e}")
+        return []
 
 def rest_get_call(id):
     """Send a GET request to download a zip file for the given id under the CELLAR URI."""
+    try:
+        url = f'http://publications.europa.eu/resource/cellar/{id}'
+        headers = {
+            'Accept': "application/zip;mtype=fmx4, application/xml;mtype=fmx4, application/xhtml+xml, text/html, text/html;type=simplified, application/msword, text/plain, application/xml;notice=object",
+            'Accept-Language': "eng",
+            'Content-Type': "application/x-www-form-urlencoded",
+            'Host': "publications.europa.eu"
+        }
+        response = requests.request("GET", url, headers=headers)
+        response.raise_for_status()
+        return response
+    except requests.RequestException as e:
+        logging.error(f"Error sending GET request: {e}")
+        return None
 
-    url = 'http://publications.europa.eu/resource/cellar/' + id
-
-    headers = {
-        'Accept': "application/zip;mtype=fmx4, application/xml;mtype=fmx4, application/xhtml+xml, text/html, text/html;type=simplified, application/msword, text/plain, application/xml;notice=object",
-        'Accept-Language': "eng",
-        'Content-Type': "application/x-www-form-urlencoded",
-        'Host': "publications.europa.eu"#,
-    }
-
-    response = requests.request("GET", url, headers=headers)
-
-    return response
-
-
-def download_zip(response, folder_path):
+def extract_zip(response, folder_path):
     """
     Downloads the zip file returned by the restful get request.
     Source: https://stackoverflow.com/questions/9419162/download-returned-zip-file-from-url?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
     """
-    z = zipfile.ZipFile(io.BytesIO(response.content))
-    z.extractall(folder_path)
-
+    try:
+        z = zipfile.ZipFile(io.BytesIO(response.content))
+        z.extractall(folder_path)
+    except Exception as e:
+        logging.error(f"Error downloading zip: {e}")
 
 def process_range(sub_list, folder_path):
     """
@@ -77,79 +81,40 @@ def process_range(sub_list, folder_path):
     :param folder_path: str
     :return: write to files
     """
-
-    # Keep track of downloads
-    zip_files = []
-    single_files = []
-    other_downloads = []
-
-    # Count downloads
-    count_cellar_ids = 0
-    count_zip = 0
-    count_single= 0
-    count_other = 0
-
-    for id in sub_list:
-        count_cellar_ids += 1
-
-        # Specify sub_folder_path to send results of request
-        sub_folder_path = folder_path + id
-
-        # Send Restful GET request for the given id
-        response = rest_get_call(id.strip())
-
-        # If the response's header contains the string 'Content-Type'
-        if 'Content-Type' in response.headers:
-
-            # If the string 'zip' appears as a value of 'Content-Type'
-            if 'zip' in response.headers['Content-Type']:
-
-                count_zip += 1
-                zip_files.append(id)
-
-                # Download the contents of the zip file in the given folder
-                download_zip(response, sub_folder_path)
-
-            # If the value of 'Content-Type' is not 'zip'
+    try:
+        zip_files = []
+        single_files = []
+        other_downloads = []
+        
+        for id in sub_list:
+            sub_folder_path = folder_path + id
+            
+            response = rest_get_call(id.strip())
+            if response is None:
+                continue
+            
+            if 'Content-Type' in response.headers:
+                if 'zip' in response.headers['Content-Type']:
+                    zip_files.append(id)
+                    extract_zip(response, sub_folder_path)
+                else:
+                    single_files.append(id)
+                    
+                    out_file = sub_folder_path + '/' + id + '.html'
+                    os.makedirs(os.path.dirname(out_file), exist_ok=True)
+                    with open(out_file, 'w+', encoding="utf-8") as f:
+                        f.write(response.text)
             else:
-                count_single += 1
-                single_files.append(id)
-
-                # Create a directory with the cellar_id name
-                # and write the returned content in a file
-                # with the same name
-                out_file = sub_folder_path + '/' + id + '.html'
-                os.makedirs(os.path.dirname(out_file), exist_ok=True)
-                with open(out_file, 'w+', encoding="utf-8") as f:
-                    f.write(response.text)
-
-        # If the response's header does not contain the string 'Content-Type'
-        else:
-            count_other += 1
-            other_downloads.append(id)
-            # print('NO_CONTENT_TYPE:', response.content)
-
-            #  Write the returned content in a file
-            # out_file = sub_folder_path + '/' + id + '.xml'
-            # with open(out_file, 'wb') as f:
-            #     f.write(response.text)
-
-    # log_text = ("\nQuery file: " + __file__ +
-    #             "\nDownload date: " + str(datetime.today()) +
-    #             "\n\nNumber of zip files downloaded: " + str(count_zip) +
-    #             "\nNumber of non-zip files downloaded: " + str(count_single) +
-    #             "\nNumber of other downloads: " + str(count_other) +
-    #             "\nTotal number of cellar ids processed: " + str(count_zip + count_single + count_other) +
-    #             "\n\nTotal number of downloaded files: " + str(count_zip + count_single) +
-    #             "\nTotal number of cellar ids: " + str(len(id_list)) +
-    #             "\n\n========================================\n"
-    #             )
-    #
-    # print(log_text)
-
-    # Write the list of other (failed) downloads in a file
-    id_logs_path = 'id_logs/failed_' + timestamp + '.txt'
-    os.makedirs(os.path.dirname(id_logs_path), exist_ok=True)
-    with open(id_logs_path, 'w+') as f:
-        if len(other_downloads) != 0:
-            f.write('Failed downloads ' + timestamp + '\n' + str(other_downloads))
+                other_downloads.append(id)
+        
+        # Log results
+        id_logs_path = 'id_logs/failed_' + datetime.now().strftime("%Y%m%d-%H%M%S") + '.txt'
+        os.makedirs(os.path.dirname(id_logs_path), exist_ok=True)
+        with open(id_logs_path, 'w+') as f:
+            if len(other_downloads) != 0:
+                f.write('Failed downloads ' + datetime.now().strftime("%Y%m%d-%H%M%S") + '\n' + str(other_downloads))
+            # HEre it would be good to log the files that were downloaded and the files that were not. In general it would be a good place to log WebAPI metadata information about the documents
+        
+        logging.info(f"Zip files: {len(zip_files)}, Single files: {len(single_files)}, Failed downloads: {len(other_downloads)}")
+    except Exception as e:
+        logging.error(f"Error processing range: {e}")
