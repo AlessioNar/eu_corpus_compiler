@@ -2,7 +2,7 @@
 name = "EU Corpus Compiler"
 version = "1.0.1"
 description = "EU Regulation Corpus Compiler: A pipeline of Python programs to download EU regulatory documents from the Eur-Lex portal via the CELLAR endpoint using the response of a SPARQL query sent to the EU Sparql endpoint."
-authors = ["AlessioNar <alessio.nardin@gmail.com>", "seljaseppala <selja.seppala.unige@gmail.com>"]
+authors = ["AlessioNar <alessio.nardin@gmail.com>", "seljaseppala <selja.seppala.unige@ucc.ie>"]
 license = "EUPL 1.2"
 readme = "README.md"
 classifiers = [

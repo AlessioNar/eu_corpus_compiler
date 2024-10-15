@@ -9,12 +9,13 @@ The program starts by sending a given SPARQL query (defining, for example, the t
 For further details, see the comments in the code of the Python files.
 
 ## Usage
-1. In `get_cellar_docs.py` specify the following paths:
-    - path to SPARQL query (`sparql_query`).
-    - path to directory containing already downloaded files to check for existing downloads (`dir_to_check`)
-    - path to directory to store downloaded files (`dwnld_folder_path`)
-    - path to directory to store the text files (`txt_folder_path`)
-2. Run `get_cellar_docs.py` to send the SPARQL query to the EU Sparql endpoint, download the files corresponding to the returned CELLAR ids, and output the clean text in `txt` files.
+1. In `main.py` specify the following paths:
+    - path to SPARQL query (`QUERY_FILE`).
+    - path to where you would like to have the results of the SPARQL QUERY (`SPARQL_QUERY_RESULTS_DIR`)
+    - path to directory containing already downloaded files to check for existing downloads (`DIR_TO_CHECK`)
+    - path to directory to store downloaded files (`DOWNLOAD_DIR`)
+    - path to directory to store the text files (`TXT_FOLDER_PATH`)
+2. Run `main.py` to send the SPARQL query to the EU Sparql endpoint, download the files corresponding to the returned CELLAR ids, and output the clean text in `txt` files.
 
 ## SPARQL query
 The SPARQL query in the `sparql_queries/` directory was designed to retrieve EU regulatory documents in the financial domain using EuroVoc concept ids. It can be used as a template to create new queries for other domains, languages, types of documents, etc.
@@ -45,6 +46,7 @@ Portugal — Região Autónoma da Madeira (Autonomous Region of Madeira) — Reg
 - Some CELLAR ids point to HTML files that contain URIs instead of content. The linked contents are currently not retrieved (e.g., http://publications.europa.eu/resource/cellar/d4661dab-51b2-11e7-a5ca-01aa75ed71a1)
 
  ### About the number of CELLAR ids and downloaded files
+
 - The number of CELLAR ids to be downloaded might be different from the number of files actually downloaded due to the fact that a single CELLAR id can correspond to multiple `.xml` files.
 - When subtracting the list of files that had been downloaded on a previous occasion (e.g., `14949`) from the list of CELLAR ids retrieved by the query (e.g., `15175`), we obtain the number of CELLAR ids to be sent to the EU CELLAR endpoint to download the corresponding files (e.g., `15175 - 14949 = 226`). However, the number thus obtained may be different from the number of actual downloads (e.g., `242`). This seems to be due to the fact that some of the pre-existing CELLAR ids are not present on the newly retrieved CELLAR id list  (e.g., `16 + 226 = 242`).
 
@@ -52,7 +54,10 @@ Portugal — Região Autónoma da Madeira (Autonomous Region of Madeira) — Reg
 Selja Seppälä
 (selja.seppala [at] ucc.ie)
 
+Alessio Nardin
+
 ## Acknowledgements
+
 This program was developed as part of the reseearch project titled "RegDef: A Computer-assisted Definition Authoring and Formalisation System for Legal Experts", and supported by the Marie Skłodowska-Curie Career-FIT Fellowship MF20180003, awarded by the Marie Skłodowska-Curie Actions and Enterprise Ireland. Career-FIT has received funding from the European Union’s Horizon2020 research and innovation programme under the Marie Skłodowska-Curie grant agreement No. 713654.
 
 Further details on the RegDef project are available at https://seljaseppala.wordpress.com/research/regdef/.
