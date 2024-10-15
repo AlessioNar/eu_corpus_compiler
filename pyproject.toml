@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "EU Corpus Compiler"
-version = "0.0.1"
+version = "1.0.1"
 description = "EU Regulation Corpus Compiler: A pipeline of Python programs to download EU regulatory documents from the Eur-Lex portal via the CELLAR endpoint using the response of a SPARQL query sent to the EU Sparql endpoint."
 authors = ["AlessioNar <alessio.nardin@gmail.com>", "seljaseppala <selja.seppala.unige@gmail.com>"]
 license = "EUPL 1.2"
