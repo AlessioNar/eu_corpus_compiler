@@ -1,0 +1,7 @@
+__pycache__/*
+data/*
+cellar_ids/*
+utils/__pycache__/*
+id_logs/*
+logs/*
+downloads/*
