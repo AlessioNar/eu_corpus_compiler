@@ -1,0 +1,20 @@
+PREFIX cdm: <http://publications.europa.eu/ontology/cdm#>
+PREFIX annot: <http://publications.europa.eu/ontology/annotation#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX dc: <http://purl.org/dc/elements/1.1/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+
+SELECT DISTINCT ?work ?sector ?celex
+WHERE {
+  ?work cdm:resource_legal_id_sector ?sector.
+  FILTER (STR(?sector) = '2')
+  FILTER NOT EXISTS {
+    ?work cdm:work_has_resource-type <http://publications.europa.eu/resource/authority/resource-type/CORRIGENDUM>.
+  }
+  OPTIONAL { ?work cdm:resource_legal_id_celex ?celex. }
+  FILTER NOT EXISTS {
+    ?work cdm:do_not_index "true"^^xsd:boolean.
+  }
+}

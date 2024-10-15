@@ -1,0 +1,51 @@
+PREFIX cdm:<http://publications.europa.eu/ontology/cdm#>
+PREFIX skos:<http://www.w3.org/2004/02/skos/core#>
+PREFIX dc:<http://purl.org/dc/elements/1.1/>
+PREFIX xsd:<http://www.w3.org/2001/XMLSchema#>
+PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>
+PREFIX owl:<http://www.w3.org/2002/07/owl#>
+
+SELECT 
+?work
+(GROUP_CONCAT(DISTINCT ?langIdentifier; separator="|") as ?lang)
+(GROUP_CONCAT(DISTINCT ?mtype; separator="|") as ?mtypes)
+(GROUP_CONCAT(DISTINCT ?resType; separator="|") as ?workTypes)
+(GROUP_CONCAT(DISTINCT ?subjectLabel; separator="|") as ?subjects)
+(GROUP_CONCAT(DISTINCT ?subject; separator="|") as ?subject_ids)
+(GROUP_CONCAT(DISTINCT ?idCelex; separator="|") as ?celex)
+
+WHERE 
+{
+    graph ?g {
+        #?work rdf:type cdm:legislation_secondary .
+        ?work rdf:type ?resType .
+        FILTER(  ?resType = cdm:decision_delegated || ?resType = cdm:decision_implementing || ?resType = cdm:decision || ?resType = cdm:directive || ?resType = cdm:regulation_delegated || ?resType = cdm:regulation_implementing || ?resType = cdm:regulation )
+                ?work cdm:work_is_about_concept_eurovoc ?subject . 
+                ?work a cdm:Resource_Legal .
+        graph ?ga { 
+            ?subject skos:prefLabel ?subjectLabel .
+            FILTER (lang(?subjectLabel)="en") 
+            FILTER( ?subject = <http://eurovoc.europa.eu/1158>  #	business and competition
+                    ) . 
+        }
+        graph ?ge { 
+            ?exp cdm:expression_belongs_to_work ?work .
+            ?exp cdm:expression_uses_language ?lg . 
+            graph ?lgc { ?lg dc:identifier ?langIdentifier .}
+            FILTER(  str( ?langIdentifier)="ENG")
+        }
+        graph ?gm {
+            ?manif cdm:manifestation_manifests_expression ?exp .
+            {?manif cdm:manifestation_type ?mtype .}
+            FILTER(  str( ?mtype)="xhtml"|| str( ?mtype)="xhtml_simpl"|| str( ?mtype)="xml")
+        }
+    }
+    {
+        ?work cdm:resource_legal_id_celex ?idCelex .
+    }
+}
+GROUP BY ?work
+ORDER BY ?work
+LIMIT 10
+OFFSET 0
