@@ -1,0 +1,30 @@
+[tool.poetry]
+name = "EU Corpus Compiler"
+version = "0.0.1"
+description = "EU Regulation Corpus Compiler: A pipeline of Python programs to download EU regulatory documents from the Eur-Lex portal via the CELLAR endpoint using the response of a SPARQL query sent to the EU Sparql endpoint."
+authors = ["AlessioNar <alessio.nardin@gmail.com>", "seljaseppala <selja.seppala.unige@gmail.com>"]
+license = "EUPL 1.2"
+readme = "README.md"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+
+
+[tool.poetry.dependencies]
+python = "^3.11"
+requests = "^2.32.3"
+pandas = "^2.2.3"
+spacy = "^3.7.6"
+sparqlwrapper = "^2.0.0"
+beautifulsoup4 = "^4.12.3"
+lxml = "^5.3.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[project.urls]
+Homepage = "https://github.com/seljaseppala/eu_corpus_compiler"
+Issues = "https://github.com/seljaseppala/eu_corpus_compiler/issues"
